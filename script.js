@@ -30,9 +30,7 @@ input.addEventListener("keydown", (event) => {
     input.value = input.value.slice(0, -1);
   }
   if (key == "Escape" || key == "c") {
-    input.value = "";
-    oldNumber = null;
-    currentNumber = null;
+    clearCalc();
   }
   if (key == "Enter") calculate();
 });
@@ -57,7 +55,6 @@ function calculate() {
 }
 
 function addDigit(value) {
-  console.log(DIGITS[value], value);
   if (DIGITS[value]) {
     input.value += value;
     currentNumber = input.value;
@@ -74,4 +71,11 @@ function addDigit(value) {
     input.value = "";
     return;
   }
+}
+
+function clearCalc() {
+  input.value = "";
+  currentNumber = "";
+  oldNumber = "";
+  return;
 }
