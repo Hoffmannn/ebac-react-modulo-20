@@ -2,80 +2,114 @@ const input = document.querySelector("#calc-input");
 const DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 const OPERATORS = ["+", "-", "*", "/"];
 
-var currentNumber = null;
-var oldNumber = null;
-var currentOperator = null;
+const state = {
+  currentNumber: null,
+  oldNumber: null,
+  currentOperator: null,
+  inputValue: "",
+};
 
-input.addEventListener("keydown", (event) => {
+function updateInput() {
+  console.log(input, state.inputValue);
+  if (input) {
+    console.log(input.value, state.inputValue);
+    input.value = state.inputValue;
+  }
+}
+
+input?.addEventListener("keydown", (event) => {
   event.preventDefault();
   const { key } = event;
 
   // Converts , into .
-  if (key == "," && input.value.length > 0 && !input.value.includes(".")) {
-    input.value += ".";
+  if (
+    key == "," &&
+    state.inputValue.length > 0 &&
+    !state.inputValue.includes(".")
+  ) {
+    state.inputValue += ".";
+    updateInput();
     return;
   }
-  if (DIGITS[key]) {
-    input.value += key;
-    currentNumber = input.value;
+  if (DIGITS.includes(key)) {
+    state.inputValue += key;
+    state.currentNumber = state.inputValue;
+    updateInput();
     return;
   }
   if (OPERATORS.includes(key)) {
-    currentOperator = key;
-    oldNumber = input.value;
-    input.value = "";
+    state.currentOperator = key;
+    state.oldNumber = state.inputValue;
+    state.inputValue = "";
+    updateInput();
     return;
   }
   if (key == "Backspace") {
-    input.value = input.value.slice(0, -1);
+    state.inputValue = state.inputValue.slice(0, -1);
+    updateInput();
   }
   if (key == "Escape" || key == "c") {
     clearCalc();
+    updateInput();
   }
   if (key == "Enter") calculate();
 });
 
 function calculate() {
-  if (currentOperator == "+")
-    input.value = Number(oldNumber) + Number(currentNumber);
-  if (currentOperator == "-")
-    input.value = Number(oldNumber) - Number(currentNumber);
-  if (currentOperator == "*")
-    input.value = Number(oldNumber) * Number(currentNumber);
-  if (currentOperator == "/") {
-    if (input.value == 0) {
-      input.value = "";
+  if (state.currentOperator == "+")
+    state.inputValue = Number(state.oldNumber) + Number(state.currentNumber);
+  if (state.currentOperator == "-")
+    state.inputValue = Number(state.oldNumber) - Number(state.currentNumber);
+  if (state.currentOperator == "*")
+    state.inputValue = Number(state.oldNumber) * Number(state.currentNumber);
+  if (state.currentOperator == "/") {
+    if (state.inputValue == 0) {
+      state.inputValue = "";
     } else {
-      input.value = Number(oldNumber) / Number(currentNumber);
+      state.inputValue = Number(state.oldNumber) / Number(state.currentNumber);
     }
   }
 
-  console.log(oldNumber, currentNumber, input.value);
-  oldNumber = input.value;
+  state.oldNumber = state.inputValue;
+  updateInput();
 }
 
 function addDigit(value) {
-  if (DIGITS[value]) {
-    input.value += value;
-    currentNumber = input.value;
+  if (DIGITS.includes(value)) {
+    state.inputValue += value;
+    state.currentNumber = state.inputValue;
+    updateInput();
     return;
   }
-  if (value == "," && input.value.length > 0 && !input.value.includes(".")) {
-    input.value += ".";
-    currentNumber = input.value;
+  if (
+    value == "," &&
+    state.inputValue.length > 0 &&
+    !state.inputValue.includes(".")
+  ) {
+    state.inputValue += ".";
+    state.currentNumber = state.inputValue;
     return;
   }
   if (OPERATORS.includes(value)) {
-    oldNumber = input.value;
-    currentOperator = value;
-    input.value = "";
+    state.oldNumber = state.inputValue;
+    state.currentOperator = value;
+    state.inputValue = "";
     return;
   }
+  updateInput();
 }
 
 function clearCalc() {
-  input.value = "";
-  currentNumber = "";
-  oldNumber = "";
+  state.inputValue = "";
+  state.currentNumber = "";
+  state.oldNumber = "";
+  updateInput();
   return;
 }
+
+module.exports = {
+  addDigit,
+  calculate,
+  clearCalc,
+  state, // Exporting the state for testing purposes
+};
